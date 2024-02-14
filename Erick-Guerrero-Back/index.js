@@ -25,6 +25,8 @@ conn.sync({ force: true }).then(() => {
         email: 'erick-guerrero@outlook.com.pe',
         hashPassword:'$2b$08$qLE41lkl/biCr/6o5caAMuLG0vtMyoaT.4TstpSeXOmJN8ZbZVus6',
         dni: 11111111,
+        businessName:'Admin',
+        ownerPhone:"51957239759",
         phoneYAPE: "51957239759",
         phonePLIN: "51957239759",
         bankAccount1: 76837246,
