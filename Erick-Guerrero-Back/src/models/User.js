@@ -8,10 +8,17 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      email: {
+      businessName: { 
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+      },
+      ownerPhone: {
+        type: DataTypes.STRING, 
+      },
+      email: {
+        type: DataTypes.STRING,
+        // allowNull: false,
+        // unique: true,
       },
       // Poner información del dueño, obligatoria, y del encargado de forma alternativa. Nombres, Apellidos, Correo, Teléfono, Documento.
       hashPassword: {

@@ -8,7 +8,7 @@ const { cronTasks } = require('./src/Controllers/webClientes/webScaping/objectCr
 const { User, Numbers, LotteryName, LotteryHr, Client, CommissionPercentage, Prize } = require('./src/db.js');
 process.env.TZ = 'America/Argentina/Buenos_Aires';
 
-conn.sync({ force: false }).then(() => {
+conn.sync({ force: true }).then(() => {
   server.listen(PORT, () => {
     console.log(`Server running...`);
     
@@ -19,29 +19,29 @@ conn.sync({ force: false }).then(() => {
       });
     });
 
-//     const user = [
-//       {
-//         name: 'Erick Guerrero',
-//         email: 'erick-guerrero@outlook.com.pe',
-//         hashPassword:'$2b$08$qLE41lkl/biCr/6o5caAMuLG0vtMyoaT.4TstpSeXOmJN8ZbZVus6',
-//         dni: 11111111,
-//         phoneYAPE: "51957239759",
-//         phonePLIN: "51957239759",
-//         bankAccount1: 76837246,
-//         bankAccount2: 12344535,
-//         address: "Capital Federal 535",
-//         urbanization: "Republica Dominicana",
-//         district: "Distrito Nacional",
-//         province: "Santo Domingo",
-//         department: "Santo Domingo",
-//         enable: true,
-//         role: 'Admin',
-//         salesCommissionPercentage: 8,
-//         paymentCommissionPercentage: 4,
-//         firstPrize: 30,
-//         SecondPrize: 20,
-//         ThirdPrize: 10,
-//       },
+    const user = [
+      {
+        name: 'Erick Guerrero',
+        email: 'erick-guerrero@outlook.com.pe',
+        hashPassword:'$2b$08$qLE41lkl/biCr/6o5caAMuLG0vtMyoaT.4TstpSeXOmJN8ZbZVus6',
+        dni: 11111111,
+        phoneYAPE: "51957239759",
+        phonePLIN: "51957239759",
+        bankAccount1: 76837246,
+        bankAccount2: 12344535,
+        address: "Capital Federal 535",
+        urbanization: "Republica Dominicana",
+        district: "Distrito Nacional",
+        province: "Santo Domingo",
+        department: "Santo Domingo",
+        enable: true,
+        role: 'Admin',
+        salesCommissionPercentage: 8,
+        paymentCommissionPercentage: 4,
+        firstPrize: 30,
+        SecondPrize: 20,
+        ThirdPrize: 10,
+      }]
 //       {
 //         name: 'Usuario',
 //         email: 'usuario@gmail.com',
@@ -523,7 +523,7 @@ conn.sync({ force: false }).then(() => {
 //       }
 //     ]
 
-//     User.bulkCreate(user).then(() => console.log("Usuarios cargados"));
+    User.bulkCreate(user).then(() => console.log("Usuarios cargados"));
 //     CommissionPercentage.bulkCreate(comisiones).then(() => console.log("Comisiones"));
 //     Prize.bulkCreate(prize).then(() => console.log("Prize"));
 //     Client.bulkCreate(client).then(() => console.log("Clientes cargados"));

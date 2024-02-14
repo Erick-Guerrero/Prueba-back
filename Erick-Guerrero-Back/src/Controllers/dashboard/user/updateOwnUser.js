@@ -13,6 +13,8 @@ module.exports = async (req, res) => {
     email,
     password,
     dni,
+    businessName,
+    ownerPhone,
     contactName,
     contactEmail,
     contactPhone,
@@ -48,6 +50,8 @@ module.exports = async (req, res) => {
     email: lowerCaseEmail ? lowerCaseEmail: email, // Usar el email en minúsculas
     hashPassword,
     dni,
+    businessName,
+    ownerPhone,
     contactName,
     contactEmail,
     contactPhone,
