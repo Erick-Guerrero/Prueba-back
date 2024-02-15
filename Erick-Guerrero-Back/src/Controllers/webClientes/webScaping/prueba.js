@@ -1,84 +1,106 @@
 const puppeteer = require("puppeteer");
-const { Numbers, Tickets, User, TicketNumber } = require("../../../db");
-const { Op } = require("sequelize");
+// const { Numbers, Tickets, User, TicketNumber } = require("../../../db");
+// const { Op } = require("sequelize");
 
 
-async function updateTicketStatusAdmin() {
-  try {
+async function laSuerteDominicana6() {
+  const maxRetries = 3;
+  let retryCount = 0;
+  const today = new Date();
+  let browser;
 
-    const ticketsWithMatchingNumbers = await Tickets.findAll({
-      where: {
-        state: "Activo",
-        stateAdmin:null,
-        createdAt: {
-          [Op.gte]: new Date(new Date() - 24 * 60 * 60 * 1000),
-        },
-      },
-      include: {
-        model: TicketNumber,
-      },
-    });
+  while (retryCount < maxRetries) {
+    try {
+      const today = new Date();
+      today.setHours(today.getHours() - 3);
 
-    const matchingNumbersInDatabase = await Numbers.findAll({
-      where: {
-        day: {
-          [Op.gte]: new Date(new Date() - 24 * 60 * 60 * 1000),
-        },
-      },
-    });
+      const startOfDay = new Date(today);
+startOfDay.setHours(0, 0, 0, 0); // Establecer la hora a las 00:00:00
 
-    const matchingTickets = [];
+const endOfDay = new Date(today);
+endOfDay.setHours(23, 59, 59, 999); 
 
-    for (const ticket of ticketsWithMatchingNumbers) {
-      const matchingNumbers = ticket?.TicketNumbers.map((ticketNumber) => ticketNumber.number);
-      const matchingBets = ticket?.TicketNumbers.map((c) => c.bet);
+//       const numberAlready = await Numbers.findOne({
+//         where: {
+//           nameLottery: "La Suerte Dominicana",
+//           hr: "18:00",
+// day:{
+//             [Op.between]: [startOfDay, endOfDay],
+// }
+//         },
+//       });
 
-      const user = await User.findOne({
-        where: {
-          id: ticket.dataValues.userId,
-        },
+//       if (numberAlready) return "Ok";
+
+      // const dayOfWeek = today.getDay();
+
+      // if (dayOfWeek === 0) {
+      //   console.log("Hoy es domingo, la función no se ejecutará.");
+      //   return;
+      // }
+
+      browser = await puppeteer.launch({
+        headless: "new",
+        args: ["--no-sandbox"],
+      });
+      const page = await browser.newPage();
+      const url = "https://www.conectate.com.do/loterias/la-primera";
+
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      await page.waitForSelector(".game-scores", { timeout: 150000 });
+
+      const numbersData = await page.evaluate(() => {
+        const container = Array.from(document.querySelectorAll(".game-scores"));
+        const numbers = container.map((element) => {
+          const numberBubbles = Array.from(element.querySelectorAll(".score"));
+          const numbers = numberBubbles.map((bubble) =>
+            bubble.textContent.trim()
+          );
+          return numbers;
+        });
+        return numbers;
       });
 
+      if (numbersData.length > 0 && numbersData[1].length === 3) {
+        const numbers = numbersData[1];
 
-      const validationLottery = await Numbers.findOne({
-        where: {
-            nameLottery: ticket.lotteryName,
-            hr: ticket.lotteryHr,
-            day:{
-              [Op.and]: [
-                Sequelize.where(Sequelize.fn('DATE', Sequelize.col('day')), Sequelize.fn('DATE', ticket.createdAt))
-            ]
-          }
-        }
-    });
+        // Verificar si el número es "00" y ajustar el valor
+        const adjustedNumbers = numbers.map((num) =>
+          num === "00" ? "100" : num
+        );
 
+        console.log(numbers);
 
-    if(validationLottery) {
-    
-    const { number1, number2, number3 } = validationLottery?.dataValues;
-
-    let total1 = 0
-    let total2 = 0
-    let total3 = 0
-
-        if((matchingNumbers[0]) === number1)  total1 =  matchingBets[0] * user.dataValues.firstPrize;
-        if((matchingNumbers[1]) === number2)  total2 = matchingBets[1] * user.dataValues.SecondPrize;
-        if((matchingNumbers[2]) === number3) total3 = matchingBets[2] * user.dataValues.ThirdPrize;
-
-        if((total1+total2+total3) > 0){
-        await ticket.update({
-          stateAdmin: "GNC",
-          winningPrize: total1 + total2 + total3,
-        });
+      //   await Numbers.create({
+      //     number1: adjustedNumbers[0],
+      //     number2: adjustedNumbers[1],
+      //     number3: adjustedNumbers[2],
+      //     page: "https://www.conectate.com.do/loterias/la-primera",
+      //     nameLottery: "La Suerte Dominicana",
+      //     hr: "18:00",
+      //     imageUrl: "https://enloteria.com/assets/la_suerte-503a3d9314a080d132a414fdc5a6940ddd50ef1d235dcc621bc1bc7f7516fbb1.svg",
+      //     day: today,
+      //   });
+      } else {
+        console.log("No se encontraron números válidos en la página.");
       }
-    } 
-    }
 
-    response(res, 200, matchingTickets);
-  } catch (error) {
-    console.error(error);
-    response(res, 500, { error: 'Internal Server Error' });
+      await browser.close();
+      return;
+    } catch (error) {
+      retryCount++;
+      console.error(`Error en el intento ${retryCount}:`, error);
+      if (retryCount >= maxRetries) {
+        console.error(
+          "Se alcanzó el número máximo de intentos. No se pudo completar la operación."
+        );
+      }
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
   }
 }
 
-updateTicketStatusAdmin()
+laSuerteDominicana6()

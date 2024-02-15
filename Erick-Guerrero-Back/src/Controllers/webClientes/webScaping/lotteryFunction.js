@@ -190,13 +190,12 @@ endOfDay.setHours(23, 59, 59, 999);
 }
 
 async function laPrimeraNoche() {
-  let intentos = 0;
-  const maxIntentos = 3;
+  const maxRetries = 3;
+  let retryCount = 0;
+  const today = new Date();
   let browser;
-  let page;
-  let errorInfo;
 
-  while (intentos < maxIntentos) {
+  while (retryCount < maxRetries) {
     try {
       const today = new Date();
       today.setHours(today.getHours() - 3);
@@ -223,36 +222,29 @@ day:{
         headless: "new",
         args: ["--no-sandbox"],
       });
-
-      page = await browser.newPage();
-      const url = "https://laprimera.do/";
+      const page = await browser.newPage();
+      const url = "https://www.conectate.com.do/loterias/la-primera";
 
       await page.goto(url, { waitUntil: "domcontentloaded" });
-      await page.waitForSelector(".wrap-results", { timeout: 30000 });
+      await page.waitForSelector(".game-scores", { timeout: 150000 });
 
       const numbersData = await page.evaluate(() => {
-        const loteria5Elements = Array.from(
-          document.querySelectorAll(".wrap-results")
-        );
-
-        const numbers = loteria5Elements.map((element) => {
-          const numberBubbles = Array.from(
-            element.querySelectorAll(".wrap-results .amount")
-          );
+        const container = Array.from(document.querySelectorAll(".game-scores"));
+        const numbers = container.map((element) => {
+          const numberBubbles = Array.from(element.querySelectorAll(".score"));
           const numbers = numberBubbles.map((bubble) =>
             bubble.textContent.trim()
           );
           return numbers;
         });
-
         return numbers;
       });
 
-      if (numbersData.length) {
+      if (numbersData.length > 0 && numbersData[1].length === 3) {
         const numbers = numbersData[1];
 
         // Verificar si el número es "00" y ajustar el valor
-        const adjustedNumbers = numbers?.map((num) =>
+        const adjustedNumbers = numbers.map((num) =>
           num === "00" ? "100" : num
         );
 
@@ -260,41 +252,32 @@ day:{
           number1: adjustedNumbers[0],
           number2: adjustedNumbers[1],
           number3: adjustedNumbers[2],
-          page: "https://laprimera.do/",
+          page: "https://www.conectate.com.do/loterias/la-primera",
           nameLottery: "La Primera Noche",
-          hr: "12:00",
+          hr: "20:00",
           imageUrl:
             "https://laprimera.do/wp-content/uploads/2023/07/logo-la-primera.svg",
           day: today,
         });
-
-        break;
       } else {
-        console.log(
-          "No se encontraron números válidos en la página. Intentando de nuevo..."
-        );
-        intentos++;
+        console.log("No se encontraron números válidos en la página.");
       }
+
+      await browser.close();
+      return;
     } catch (error) {
-      console.error(
-        "Se produjo un error al ejecutar la función laPrimeraNoche:",
-        error
-      );
-      errorInfo = error;
-      intentos++;
-    } finally {
-      if (page) {
-        await page.close();
+      retryCount++;
+      console.error(`Error en el intento ${retryCount}:`, error);
+      if (retryCount >= maxRetries) {
+        console.error(
+          "Se alcanzó el número máximo de intentos. No se pudo completar la operación."
+        );
       }
+    } finally {
       if (browser) {
         await browser.close();
       }
     }
-  }
-
-  if (intentos === maxIntentos) {
-    console.log(`Se agotaron los intentos (${maxIntentos}).`);
-    console.log("Información del error:", errorInfo);
   }
 }
 
@@ -369,9 +352,9 @@ day:{
           number1: adjustedNumbers[0],
           number2: adjustedNumbers[1],
           number3: adjustedNumbers[2],
-          page: "https://laprimera.do/",
+          page: "https://www.conectate.com.do/loterias/la-primera",
           nameLottery: "La Primera Día",
-          hr: "12:00",
+          hr: "20:00",
           imageUrl:
             "https://laprimera.do/wp-content/uploads/2023/07/logo-la-primera.svg",
           day: today,
