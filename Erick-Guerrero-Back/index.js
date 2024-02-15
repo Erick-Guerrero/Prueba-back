@@ -8,7 +8,7 @@ const { cronTasks } = require('./src/Controllers/webClientes/webScaping/objectCr
 const { User, Numbers, LotteryName, LotteryHr, Client, CommissionPercentage, Prize } = require('./src/db.js');
 process.env.TZ = 'America/Argentina/Buenos_Aires';
 
-conn.sync({ force: true }).then(() => {
+conn.sync({ force: false }).then(() => {
   server.listen(PORT, () => {
     console.log(`Server running...`);
     
